@@ -1,0 +1,54 @@
+{
+    local_certs
+
+    pki {
+        ca local {
+            intermediate_lifetime 365d
+        }
+    }
+}
+
+(long-local-certs) {
+    tls {
+        issuer internal {
+            lifetime 365d
+        }
+    }
+}
+
+https://spoolman.local {
+    import long-local-certs
+    reverse_proxy spoolman:8000
+    log {
+        output stdout
+        format console
+    }
+}
+
+https://openspoolman.local {
+    import long-local-certs
+    reverse_proxy openspoolman:8000
+    log {
+        output stdout
+        format console
+    }
+}
+
+https://prometheus.local {
+    import long-local-certs
+    reverse_proxy prometheus:9090
+    log {
+        output stdout
+        format console
+    }
+}
+
+
+https://grafana.local {
+    import long-local-certs
+    reverse_proxy grafana:3000
+    log {
+        output stdout
+        format console
+    }
+}

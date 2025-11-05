@@ -1,0 +1,98 @@
+services:
+  spoolman:
+    image: ghcr.io/donkie/spoolman:latest
+    container_name: spoolman
+    restart: unless-stopped
+    environment:
+      TZ: Asia/Taipei
+      DB_TYPE: sqlite
+      DB_PATH: /home/app/.local/share/spoolman/spoolman.db
+    volumes:
+      - /d/Dropbox/program/spoolman_data/spoolman:/home/app/.local/share/spoolman
+    networks:
+      - spoolnet
+
+
+  openspoolman:
+    image: ghcr.io/drndos/openspoolman:latest
+    container_name: openspoolman
+    restart: unless-stopped
+    environment:
+      TZ: Asia/Taipei
+      OPENSPOOLMAN_BASE_URL: https://openspoolman.local/
+      SPOOLMAN_BASE_URL: http://spoolman:8000
+      PRINTER_ID: 03919C4A1300667
+      PRINTER_NAME: "Bambu Lab A1"
+      PRINTER_ACCESS_CODE: ${PRINTER_ACCESS_CODE}
+      PRINTER_IP: ${PRINTER_IP}
+    depends_on:
+      - spoolman
+    networks:
+      - spoolnet
+
+  caddy:
+    image: caddy:latest
+    container_name: caddy
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - /d/Dropbox/program/spoolman_data/caddy:/data
+    networks:
+      - spoolnet
+
+  node_exporter:
+    image: prom/node-exporter:latest
+    container_name: node_exporter
+    restart: unless-stopped
+    command:
+      - '--path.procfs=/host/proc'
+      - '--path.sysfs=/host/sys'
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+    ports:
+      - "9100:9100"
+    networks:
+      - spoolnet
+
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: prometheus
+    restart: unless-stopped
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - /d/Dropbox/program/spoolman_data/prometheus:/prometheus
+    ports:
+      - "9090:9090"
+    networks:
+      - spoolnet
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.enable-lifecycle'
+      - '--storage.tsdb.retention.time=365d'
+
+  # **新增 Grafana 服务**
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana
+    restart: unless-stopped
+    volumes:
+      - /d/Dropbox/program/spoolman_data/grafana:/var/lib/grafana
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_PASSWORD}
+    ports:
+      - "3000:3000"
+    networks:
+      - spoolnet
+    depends_on:
+      - prometheus
+    user: "0:0"
+
+networks:
+  spoolnet:
+    driver: bridge

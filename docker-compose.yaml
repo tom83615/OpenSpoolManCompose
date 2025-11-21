@@ -8,7 +8,7 @@ services:
       DB_TYPE: sqlite
       DB_PATH: /home/app/.local/share/spoolman/spoolman.db
     volumes:
-      - /d/Dropbox/program/spoolman_data/spoolman:/home/app/.local/share/spoolman
+      - ${DATA_DIR}/spoolman:/home/app/.local/share/spoolman
     networks:
       - spoolnet
 
@@ -39,7 +39,7 @@ services:
       - "443:443"
     volumes:
       - ./Caddyfile:/etc/caddy/Caddyfile:ro
-      - /d/Dropbox/program/spoolman_data/caddy:/data
+      - ${DATA_DIR}/caddy:/data
     networks:
       - spoolnet
 
@@ -64,7 +64,7 @@ services:
     restart: unless-stopped
     volumes:
       - ./prometheus.yml:/etc/prometheus/prometheus.yml:ro
-      - /d/Dropbox/program/spoolman_data/prometheus:/prometheus
+      - ${DATA_DIR}/prometheus:/prometheus
     ports:
       - "9090:9090"
     networks:
@@ -81,7 +81,7 @@ services:
     container_name: grafana
     restart: unless-stopped
     volumes:
-      - /d/Dropbox/program/spoolman_data/grafana:/var/lib/grafana
+      - ${DATA_DIR}/grafana:/var/lib/grafana
     environment:
       - GF_SECURITY_ADMIN_USER=admin
       - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_PASSWORD}

@@ -11,7 +11,11 @@ services:
       - ${DATA_DIR}/spoolman:/home/app/.local/share/spoolman
     networks:
       - spoolnet
-
+    logging: &logging-config
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
 
   openspoolman:
     image: ghcr.io/drndos/openspoolman:latest
@@ -29,6 +33,7 @@ services:
       - spoolman
     networks:
       - spoolnet
+    logging: *logging-config
 
   caddy:
     image: caddy:latest
@@ -42,6 +47,7 @@ services:
       - ${DATA_DIR}/caddy:/data
     networks:
       - spoolnet
+    logging: *logging-config
 
   node_exporter:
     image: prom/node-exporter:latest
@@ -50,6 +56,7 @@ services:
     command:
       - '--path.procfs=/host/proc'
       - '--path.sysfs=/host/sys'
+      - '--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc|rootfs/var/lib/docker/containers|rootfs/var/lib/docker/overlay2|rootfs/run/docker/netns|rootfs/var/lib/docker/aufs)($$|/)'
     volumes:
       - /proc:/host/proc:ro
       - /sys:/host/sys:ro
@@ -57,6 +64,7 @@ services:
       - "9100:9100"
     networks:
       - spoolnet
+    logging: *logging-config
 
   prometheus:
     image: prom/prometheus:latest
@@ -65,6 +73,8 @@ services:
     volumes:
       - ./prometheus.yml:/etc/prometheus/prometheus.yml:ro
       - ${DATA_DIR}/prometheus:/prometheus
+    tmpfs:
+      - /prometheus/wal:size=256m
     ports:
       - "9090:9090"
     networks:
@@ -73,9 +83,10 @@ services:
       - '--config.file=/etc/prometheus/prometheus.yml'
       - '--storage.tsdb.path=/prometheus'
       - '--web.enable-lifecycle'
-      - '--storage.tsdb.retention.time=365d'
+      - '--storage.tsdb.retention.time=7d'
+      - '--storage.tsdb.wal-compression'
+    logging: *logging-config
 
-  # **新增 Grafana 服务**
   grafana:
     image: grafana/grafana:latest
     container_name: grafana
@@ -85,6 +96,7 @@ services:
     environment:
       - GF_SECURITY_ADMIN_USER=admin
       - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_PASSWORD}
+      - GF_LOG_LEVEL=warn
     ports:
       - "3000:3000"
     networks:
@@ -92,6 +104,7 @@ services:
     depends_on:
       - prometheus
     user: "0:0"
+    logging: *logging-config
 
 networks:
   spoolnet:

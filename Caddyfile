@@ -25,6 +25,18 @@ https://spoolman.local {
     }
 }
 
+https://openspoolman.local {
+    import long-local-certs
+    root * /srv
+    templates
+    file_server
+    try_files {path} /index.html
+    log {
+        output stdout
+        format console
+    }
+}
+
 https://openspoolman1.local {
     import long-local-certs
     reverse_proxy openspoolman_1:8000

@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OpenSpoolMan Portal</title>
+    <style>
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: #1a1b1e;
+            color: #ffffff;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .container {
+            text-align: center;
+            background: #25262b;
+            padding: 3rem;
+            border-radius: 16px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+            border: 1px solid #373a40;
+        }
+
+        h1 {
+            margin-bottom: 2rem;
+            font-weight: 700;
+            background: linear-gradient(45deg, #3b82f6, #8b5cf6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 1.5rem;
+            justify-content: center;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 1rem 2rem;
+            font-size: 1.1rem;
+            font-weight: 600;
+            text-decoration: none;
+            color: white;
+            background-color: #228be6;
+            border-radius: 8px;
+            transition: all 0.2s ease;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(34, 139, 230, 0.4);
+            background-color: #1c7ed6;
+        }
+
+        .btn-secondary {
+            background-color: #fa5252;
+        }
+
+        .btn-secondary:hover {
+            background-color: #e03131;
+            box-shadow: 0 4px 12px rgba(250, 82, 82, 0.4);
+        }
+
+        p {
+            margin-top: 2rem;
+            color: #909296;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>Select Printer</h1>
+        <div class="button-group">
+            <a id="btn1" href="#" class="btn">{{ readFile "p1.env" | regexFind "PRINTER_NAME=.*" | replace
+                "PRINTER_NAME=" "" }}</a>
+            <a id="btn2" href="#" class="btn btn-secondary">{{ readFile "p2.env" | regexFind "PRINTER_NAME=.*" | replace
+                "PRINTER_NAME=" "" }}</a>
+        </div>
+        <p>Current Path: <span id="current-path">/</span></p>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const path = window.location.pathname + window.location.search + window.location.hash;
+            const displayPath = path === '/' ? '/' : path;
+
+            document.getElementById('current-path').textContent = displayPath;
+
+            // Update links to include the current path
+            document.getElementById('btn1').href = 'https://openspoolman1.local' + path;
+            document.getElementById('btn2').href = 'https://openspoolman2.local' + path;
+        });
+    </script>
+</body>
+
+</html>

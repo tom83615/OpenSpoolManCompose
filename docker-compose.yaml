@@ -63,6 +63,9 @@ services:
     volumes:
       - ./Caddyfile:/etc/caddy/Caddyfile:ro
       - ${DATA_DIR}/caddy:/data
+      - ./static:/srv
+      - ./.env.printer1:/srv/p1.env:ro
+      - ./.env.printer2:/srv/p2.env:ro
     networks:
       - spoolnet
     logging: *logging-config

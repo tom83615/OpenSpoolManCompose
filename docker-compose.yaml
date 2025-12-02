@@ -17,20 +17,38 @@ services:
         max-size: "10m"
         max-file: "3"
 
-  openspoolman:
+  openspoolman_1:
     image: ghcr.io/drndos/openspoolman:latest
-    container_name: openspoolman
+    container_name: openspoolman_1
     restart: unless-stopped
+    env_file:
+      - .env.printer1
     environment:
       TZ: Asia/Taipei
-      OPENSPOOLMAN_BASE_URL: https://openspoolman.local/
       SPOOLMAN_BASE_URL: http://spoolman:8000
-      PRINTER_ID: 03919C4A1300667
-      PRINTER_NAME: "Bambu Lab A1"
-      PRINTER_ACCESS_CODE: ${PRINTER_ACCESS_CODE}
-      PRINTER_IP: ${PRINTER_IP}
+      OPENSPOOLMAN_BASE_URL: https://openspoolman.local/
     depends_on:
       - spoolman
+    ports:
+      - "7914:8000"
+    networks:
+      - spoolnet
+    logging: *logging-config
+
+  openspoolman_2:
+    image: ghcr.io/drndos/openspoolman:latest
+    container_name: openspoolman_2
+    restart: unless-stopped
+    env_file:
+      - .env.printer2
+    environment:
+      TZ: Asia/Taipei
+      SPOOLMAN_BASE_URL: http://spoolman:8000
+      OPENSPOOLMAN_BASE_URL: https://openspoolman.local/
+    depends_on:
+      - spoolman
+    ports:
+      - "7915:8000"
     networks:
       - spoolnet
     logging: *logging-config

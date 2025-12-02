@@ -25,9 +25,18 @@ https://spoolman.local {
     }
 }
 
-https://openspoolman.local {
+https://openspoolman1.local {
     import long-local-certs
-    reverse_proxy openspoolman:8000
+    reverse_proxy openspoolman_1:8000
+    log {
+        output stdout
+        format console
+    }
+}
+
+https://openspoolman2.local {
+    import long-local-certs
+    reverse_proxy openspoolman_2:8000
     log {
         output stdout
         format console

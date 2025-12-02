@@ -1,3 +1,6 @@
+
 .env
+.env.printer*
+!.env.printer.example
 
 docker-compose.override.yml
